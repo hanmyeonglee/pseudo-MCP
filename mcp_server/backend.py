@@ -4,7 +4,8 @@ from flask import Flask, request, make_response, jsonify, Request
 from jsonrpc import (
     jsonrpc,
     jsonrpc_error,
-    is_valid_jsonrpc
+    is_valid_jsonrpc,
+    is_valid_call
 )
 
 app = Flask(__name__)
@@ -86,6 +87,39 @@ def initialized():
         message = jsonrpc(id=-1, error=jsonrpc_error(code))
         return jsonify(message), 415
 
-@app.route('/tools', methods=['POST'])
-def tools():
-    raise NotImplementedError()
+@app.route('/tools/list', methods=['POST'])
+def list():
+    code = is_valid_jsonrpc(request, ['tools/' + get_function_name()])
+    if code != 1:
+        message = jsonrpc(id=-1, error=jsonrpc_error(code))
+        return jsonify(message), 415
+    
+    data = request.json
+    id = data.get('id')
+    message = jsonrpc(id, result={ "tools": listing_tools() })
+    return jsonify(message), 200
+
+@app.route('/tools/call')
+def tool():
+    TOOLS = listing_tools()
+    code = is_valid_jsonrpc(request, ['tools/' + get_function_name()])
+    if code != 1:
+        message = jsonrpc(id=-1, error=jsonrpc_error(code))
+        return jsonify(message), 415
+    
+    data = request.json
+    id = data.get('id')
+    methods = ['tools/' + d['name'] for d in TOOLS]
+    code = is_valid_call(data, TOOLS, methods)
+    if code != 1:
+        message = jsonrpc(id=-1, error=jsonrpc_error(code))
+        return jsonify(message), 400
+    
+    params = data.get('params')
+    name = params.get('name')
+    arguments = params.get('arguments')
+    actual_function = getattr(tools, name)
+    result = actual_function(**arguments)
+
+    message = jsonrpc(id=id, result=result)
+    return jsonify(message), 200

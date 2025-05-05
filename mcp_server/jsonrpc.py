@@ -31,3 +31,22 @@ def is_valid_jsonrpc(request: Request, methods: list[str]) -> int:
     if data.get('method') not in methods: return -32601
 
     return 1
+
+def is_valid_call(data: dict, spec: dict, methods: list):
+    if 'params' not in data: return -32600
+    params = data.get('params')
+    
+    if 'name' not in params or 'arguments' not in params: return -32602
+    name = params.get('name')
+    arguments = params.get('arguments')
+
+    if name not in methods: return -32602
+    specification = next(filter(lambda d: d.get('name') == name, spec))
+    inputSchema = specification.get('inputSchema')
+    properties = inputSchema.get('properties')
+    required = inputSchema.get('required')
+    
+    if any(required_variable not in arguments.keys() for required_variable in required): return -32602
+    if any(given_variable not in properties.keys() for given_variable in arguments.keys()): return -32602
+
+    return 1
