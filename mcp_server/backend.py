@@ -25,6 +25,11 @@ def initialize():
 
     data = request.json
     id = data.get('id')
+    if id in IDS:
+        message = jsonrpc(id=-1, error=jsonrpc_error(-32002))
+        return jsonify(message), 409
+    
+    IDS.add(id)
     message = jsonrpc(id=id, result={
         'capabilities': {
             'tools': {}
@@ -34,8 +39,6 @@ def initialize():
             'version': '0.1.0'
         }
     })
-
-    IDS.add(id)
 
     return jsonify(message), 200
 
