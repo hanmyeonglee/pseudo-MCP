@@ -49,7 +49,7 @@ def random_number_generator(a: int, b: int, n: int = 1):
     return [random.randrange(a, b) for _ in range(n)]
 
 def give_word_randomly_from_given_word_array(words: list[str]):
-    """Give oen random word from given words array. If array is empty, than return value is null.
+    """Give one random word from given words array. If array is empty, than return value is null.
 
     Args:
         words (array)

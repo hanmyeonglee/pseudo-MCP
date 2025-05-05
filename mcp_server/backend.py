@@ -1,4 +1,4 @@
-import os, inspect, time
+import os, inspect, tools
 from flask import Flask, request, make_response, jsonify, Request
 
 from jsonrpc import (
@@ -18,6 +18,45 @@ def get_function_name():
         string: the name of caller
     """
     return inspect.stack()[1].function
+
+def listing_tools():
+    TOOLS = []
+    functions = inspect.getmembers(tools, inspect.isfunction)
+    for name, function in functions:
+        tool = { 'name': name }
+        inputschema = {}
+        properties = {}
+        required = []
+        docstring = inspect.getdoc(function)
+        
+        idx = docstring.find('\n')
+        description = docstring[:idx]
+        tool['description'] = description
+
+        if 'Args' in docstring:
+            idx = docstring.find('Args:\n') + 6
+            args = docstring[idx:]
+            for line in args.splitlines():
+                if line == '': break
+                line = line.strip()
+                arg_name, _, typ = line.partition(' ')
+                if 'optional' not in line:
+                    required.append(arg_name)
+                typ = typ.strip('()').partition(', optional')[0]
+                properties[arg_name] = { "type": typ }
+
+        idx = docstring.find('Returns:\n    ') + 13
+        typ = docstring[idx:]
+
+        inputschema['type'] = typ
+        inputschema['properties'] = properties
+        inputschema['required'] = required
+
+        tool['inputSchema'] = inputschema
+
+        TOOLS.append(tool)
+
+    return TOOLS
 
 @app.route('/initialize', methods=['POST'])
 def initialize():
