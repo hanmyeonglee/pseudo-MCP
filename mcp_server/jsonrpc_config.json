@@ -9,6 +9,5 @@
   [-32602, "Invalid params", "Invalid method parameter(s)."],
   [-32603, "Internal error", "Internal JSON-RPC error."],
   [-32000, "Invalid Code number", "JSONRPC error code is wrong"],
-  [-32001, "Invalid ID", "ID is not entered in initialize state."],
-  [-32002, "Used ID", "ID is already used by another user."]
+  [-32001, "Invalid ID", "ID is not entered in initialize state."]
 ]
