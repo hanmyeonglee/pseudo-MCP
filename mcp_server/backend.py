@@ -13,11 +13,6 @@ app.secret_key = os.urandom(32)
 app.name = 'general-server'
 
 def get_function_name():
-    """Return the name of caller function
-
-    Returns:
-        string: the name of caller
-    """
     return inspect.stack()[1].function
 
 def listing_tools():
@@ -82,10 +77,12 @@ def initialize():
 
 @app.route('/initialized', methods=['POST'])
 def initialized():
-    code = is_valid_jsonrpc(request, ['notification/' + get_function_name()])
+    code = is_valid_jsonrpc(request, ['notifications/' + get_function_name()])
     if code != 1:
         message = jsonrpc(id=-1, error=jsonrpc_error(code))
         return jsonify(message), 415
+
+    return ''
 
 @app.route('/tools/list', methods=['POST'])
 def list():
@@ -99,8 +96,8 @@ def list():
     message = jsonrpc(id, result={ "tools": listing_tools() })
     return jsonify(message), 200
 
-@app.route('/tools/call')
-def tool():
+@app.route('/tools/call', methods=['POST'])
+def call():
     TOOLS = listing_tools()
     code = is_valid_jsonrpc(request, ['tools/' + get_function_name()])
     if code != 1:
@@ -109,7 +106,7 @@ def tool():
     
     data = request.json
     id = data.get('id')
-    methods = ['tools/' + d['name'] for d in TOOLS]
+    methods = [d['name'] for d in TOOLS]
     code = is_valid_call(data, TOOLS, methods)
     if code != 1:
         message = jsonrpc(id=-1, error=jsonrpc_error(code))
@@ -123,3 +120,5 @@ def tool():
 
     message = jsonrpc(id=id, result=result)
     return jsonify(message), 200
+
+app.run('0.0.0.0', 3000)
