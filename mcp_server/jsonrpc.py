@@ -25,7 +25,7 @@ def is_valid_jsonrpc(request: Request, methods: list[str]) -> int:
 
     if not isinstance(data := request.json, dict) \
         or data.get('jsonrpc', None) != '2.0' \
-        or 'id' not in data: 
+        or 'id' not in data:
             return -32600
     
     if data.get('method') not in methods: return -32601

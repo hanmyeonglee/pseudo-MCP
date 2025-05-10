@@ -31,7 +31,7 @@ Only respond in the following format:
 """
 
 def generate(tools_list: list, user_input: str) -> dict:
-    input_text = TEMPLATE % (json.dumps(tools_list, user_input))
+    input_text = TEMPLATE % (json.dumps(tools_list), user_input)
     inputs = Tokenizer(input_text, return_tensors="pt")
     inputs = {k: v.to(MODEL.device) for k, v in inputs.items()}
 

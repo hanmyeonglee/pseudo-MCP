@@ -1,5 +1,6 @@
 import os, inspect, tools
 from flask import Flask, request, make_response, jsonify, Request
+from flask_cors import CORS
 
 from jsonrpc import (
     jsonrpc,
@@ -11,6 +12,8 @@ from jsonrpc import (
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.name = 'general-server'
+
+CORS(app)
 
 def get_function_name():
     return inspect.stack()[1].function
@@ -81,8 +84,8 @@ def initialized():
     if code != 1:
         message = jsonrpc(id=-1, error=jsonrpc_error(code))
         return jsonify(message), 415
-
-    return ''
+    
+    return jsonify({}), 200
 
 @app.route('/tools/list', methods=['POST'])
 def list():

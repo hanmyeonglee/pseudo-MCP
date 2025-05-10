@@ -1,4 +1,5 @@
 from flask import Flask, request, abort, jsonify
+from flask_cors import CORS
 import os
 
 from agent import generate
@@ -6,6 +7,8 @@ from agent import generate
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.name = "MCP-finetuned-LLM"
+
+CORS(app)
 
 def is_valid_tool(tool: dict):
     return isinstance(tool, dict) and \
@@ -17,7 +20,7 @@ def is_valid_tool(tool: dict):
         'properties' in inputSchema and \
         'required' in inputSchema
 
-@app.route("/", method=["POST"])
+@app.route("/", methods=["POST"])
 def index():
     if not request.is_json:
         abort(415)
@@ -26,17 +29,20 @@ def index():
     if 'tools_list' not in data \
         or 'user_input' not in data \
         or 'id' not in data:
+        print("Not Valid JSONRPC")
         abort(400)
     
     id = data.get('id')
     tools_list = data.get('tools_list')
     user_input = data.get('user_input')
     if any(is_valid_tool(tool) for tool in tools_list):
+        print("Not Valid ToolList")
         abort(400)
     
     try:
         answer = generate(tools_list, user_input)
-    except:
+    except Exception as e:
+        print(e)
         abort(500)
     
     return jsonify({
