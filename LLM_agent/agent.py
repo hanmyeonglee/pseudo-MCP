@@ -1,20 +1,44 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
+import json
 
-model_path = "C:\xampp\htdocs\main\model\osmosis-mcp-4b"
-
-# 모델 로드 (자동으로 CPU+GPU 혼합 메모리 사용)
-model = AutoModelForCausalLM.from_pretrained(
-    model_path,
-    device_map="auto",  # CPU+GPU 자동 혼합
-    torch_dtype="auto",  # bfloat16이 config.json에 지정되어 있으면 그대로 사용
+MODEL_PATH = "C:\\xampp\\htdocs\\main\\model\\osmosis-mcp-4b"
+MODEL = AutoModelForCausalLM.from_pretrained(
+    MODEL_PATH,
+    device_map="auto",
+    trust_remote_code=True,
+    torch_dtype="auto"
 )
 
-tokenizer = AutoTokenizer.from_pretrained(model_path)
+Tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 
-# 입력 및 생성
-input_text = "Hello, how are you?"
-inputs = tokenizer(input_text, return_tensors="pt")
-inputs = {k: v.to(model.device) for k, v in inputs.items()}  # GPU에 올릴 수 있으면 올림
+TEMPLATE = """<|im_start|>system
+You are an AI assistant that selects and uses tools to answer user requests.
 
-output = model.generate(**inputs, max_new_tokens=50)
-print(tokenizer.decode(output[0], skip_special_tokens=True))
+You have access to the following tools:
+%s
+
+Given a user's natural language request, pick the most appropriate tool and generate a JSON call using the tool name and valid input arguments.
+
+Only respond in the following format:
+
+<tool_call>
+{"name": "<tool_name>", "arguments": { ... }}
+</tool_call>
+<|im_end|>
+
+<|im_start|>user
+%s<|im_end|>
+"""
+
+def generate(tools_list: list, user_input: str) -> dict:
+    input_text = TEMPLATE % (json.dumps(tools_list, user_input))
+    inputs = Tokenizer(input_text, return_tensors="pt")
+    inputs = {k: v.to(MODEL.device) for k, v in inputs.items()}
+
+    output = MODEL.generate(**inputs, max_new_tokens=50)
+    answer = Tokenizer.decode(output[0], skip_special_tokens=True).strip()
+
+    delimiter = "<tool_call>"
+    answer = answer.split(delimiter)[2].replace("</tool_call>", "").strip()
+
+    return json.loads(answer)

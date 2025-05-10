@@ -11,6 +11,10 @@ For understanding the workflow of MCP
 5. [MCP (Model Context Protocol) の仕組みを知りたい！](https://qiita.com/megmogmog1965/items/79ec6a47d9c223e8cffc)
 6. [Model Context Protocol](https://modelcontextprotocol.io/introduction)
 
+### LLM Model
+
+https://huggingface.co/osmosis-ai/osmosis-mcp-4b
+
 ### Notice
 
 Dont care about precise configuration.
