@@ -1,0 +1,47 @@
+[
+  {
+    "name": "give_word_randomly_from_given_word_array",
+    "description": "Give one random word from given words array. If array is empty, than return value is null.",
+    "inputSchema": {
+      "type": "string | null",
+      "properties": { "words": { "type": "array" } },
+      "required": ["words"]
+    }
+  },
+  {
+    "name": "healthcheck",
+    "description": "Check the connection health between client and server. Always return true.",
+    "inputSchema": { "type": "boolean", "properties": {}, "required": [] }
+  },
+  {
+    "name": "random_number_generator",
+    "description": "Generate array of n random numbers, n is 1 at default state. The number is integer and in the range of a and less than b. If a >= b, than return the empty array.",
+    "inputSchema": {
+      "type": "array",
+      "properties": {
+        "a": { "type": "int" },
+        "b": { "type": "int" },
+        "n": { "type": "int" }
+      },
+      "required": ["a", "b"]
+    }
+  },
+  {
+    "name": "repeat_after_me",
+    "description": "Return the same sentence which is given by client.",
+    "inputSchema": {
+      "type": "string",
+      "properties": { "sentence": { "type": "string" } },
+      "required": ["sentence"]
+    }
+  },
+  {
+    "name": "server_time",
+    "description": "Give the current server time to client. If is_unix is true, than return the unix time of server and if not, than return the standard UTC time formatted time like \"1970-01-01 12:34:56 UTC+0300\"",
+    "inputSchema": {
+      "type": "string",
+      "properties": { "is_unix": { "type": "boolean" } },
+      "required": ["is_unix"]
+    }
+  }
+]
