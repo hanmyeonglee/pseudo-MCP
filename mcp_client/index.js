@@ -20,21 +20,25 @@ window.sendMessage = async () => {
   appendMessage(text, "user");
   userInput.value = "";
 
-  let params = await generate({
-    addr: CONFIG.chatbot_addr,
-    id: CONFIG.id,
-    tools_list: CONFIG.tools,
-    user_input: text,
-  });
-  if (!params) reload();
+  try {
+    let params = await generate({
+      addr: CONFIG.chatbot_addr,
+      id: CONFIG.id,
+      tools_list: CONFIG.tools,
+      user_input: text,
+    });
+    if (!params) throw new Error("Invalid Params");
 
-  let result =
-    (await call({
-      addr: CONFIG.server_addr,
-      config: CONFIG,
-      params,
-    })) ?? "AI is broken, retry plz.";
-  appendMessage(result, "ai");
+    let result =
+      (await call({
+        addr: CONFIG.server_addr,
+        config: CONFIG,
+        params,
+      })) ?? "AI is broken, retry plz.";
+    appendMessage(result, "ai");
+  } catch {
+    appendMessage("AI is broken, retry plz.", "ai");
+  }
 };
 
 userInput.addEventListener("keypress", (e) => {

@@ -60,10 +60,8 @@ async function get_tools(config) {
 }
 
 export async function init() {
-  let server_addr =
-    prompt("MCP server 서버 주소는?") ?? "http://localhost:5000";
-  let chatbot_addr =
-    prompt("LLM Agent 서버 주소는?") ?? "http://localhost:5000";
+  let server_addr = prompt("Address of MCP Server") ?? "http://localhost:5000";
+  let chatbot_addr = prompt("Address of LLM Server") ?? "http://localhost:5000";
 
   let config = {
     server_addr,

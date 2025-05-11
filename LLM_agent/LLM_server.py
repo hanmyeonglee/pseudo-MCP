@@ -35,12 +35,13 @@ def index():
     id = data.get('id')
     tools_list = data.get('tools_list')
     user_input = data.get('user_input')
-    if any(is_valid_tool(tool) for tool in tools_list):
+    if any(not is_valid_tool(tool) for tool in tools_list):
         print("Not Valid ToolList")
         abort(400)
     
     try:
         answer = generate(tools_list, user_input)
+        print(answer)
     except Exception as e:
         print(e)
         abort(500)
